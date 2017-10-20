@@ -85,6 +85,7 @@ SYSCALL write_bs(char *, bsd_t, int);
 #define FR_PAGE		0
 #define FR_TBL		1
 #define FR_DIR		2
+#define FR_UNDEFINE     -1
 
 #define SC 3
 #define AGING 4

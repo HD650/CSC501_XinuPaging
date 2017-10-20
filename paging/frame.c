@@ -4,13 +4,26 @@
 #include <proc.h>
 #include <paging.h>
 
+//the global table of frames for all the phiscial memory frame we have
+fr_map_t g_frame_table[NFRAMES];
+
 /*-------------------------------------------------------------------------
  * init_frm - initialize frm_tab
  *-------------------------------------------------------------------------
  */
 SYSCALL init_frm()
 {
-  kprintf("To be implemented!\n");
+  kprintf("Initialize the frame table!\n");
+  int i;
+  for(i=0;i<NFRAMES;i++)
+  {
+    g_frame_table[i].fr_status=FRM_UNMAPPED;
+    g_frame_table[i].fr_pid=-1;
+    g_frame_table[i].fr_vpno=-1;
+    g_frame_table[i].fr_refcnt=0;
+    g_frame_table[i].fr_type=FR_UNDEFINE;
+    g_frame_table[i].fr_dirty=0;
+  }
   return OK;
 }
 
