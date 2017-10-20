@@ -11,6 +11,10 @@
  */
 int main()
 {
-	kprintf("\n\nHello World, Xinu lives\n\n");
-	return 0;
+	kprintf("\n\nHello World, Xinu@QEMU lives\n\n");
+
+        /* The hook to shutdown QEMU for process-like execution of XINU.
+         * This API call terminates the QEMU process.
+         */
+        shutdown();
 }
