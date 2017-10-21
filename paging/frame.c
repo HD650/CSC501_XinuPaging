@@ -33,7 +33,16 @@ SYSCALL init_frm()
  */
 SYSCALL get_frm(int* avail)
 {
-  kprintf("To be implemented!\n");
+  kprintf("Get a frame!\n");
+  int i;
+  for(i=0;i<NFRAMES;i++)
+  {
+    if(g_frame_table[i].fr_status==FR_UNMAPPED)
+    {
+      *avail=i;
+      return OK;
+    }
+  }
   return OK;
 }
 
