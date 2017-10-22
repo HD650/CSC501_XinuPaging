@@ -37,7 +37,7 @@ SYSCALL get_frm(int* avail)
   int i;
   for(i=0;i<NFRAMES;i++)
   {
-    if(g_frame_table[i].fr_status==FR_UNMAPPED)
+    if(g_frame_table[i].fr_status==FRM_UNMAPPED)
     {
       *avail=i;
       return OK;

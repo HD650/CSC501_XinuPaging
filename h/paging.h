@@ -61,6 +61,10 @@ typedef struct{
 
 extern bs_map_t bsm_tab[];
 extern fr_map_t frm_tab[];
+
+/*page fault handler*/
+SYSCALL pfint();
+
 /* Prototypes for required API calls */
 SYSCALL xmmap(int, bsd_t, int);
 SYSCALL xunmap(int);
@@ -71,6 +75,16 @@ int get_bs(bsd_t, unsigned int);
 SYSCALL release_bs(bsd_t);
 SYSCALL read_bs(char *, bsd_t, int);
 SYSCALL write_bs(char *, bsd_t, int);
+
+/*functions for frame management*/
+SYSCALL init_frm();
+SYSCALL get_frm(int*);
+
+/*functions for page management*/
+int create_page_table(int);
+int init_general_page_table();
+int create_page_dir(int);
+
 
 #define NBPG		4096	/* number of bytes per page	*/
 #define FRAME0		1024	/* zero-th frame		*/

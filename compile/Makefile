@@ -57,7 +57,7 @@ TTY =	ttyalloc.c	ttycntl.c	ttygetc.c	ttyiin.c	\
 	ttyread.c	ttywrite.c	ttyoin.c
 
 PG  =   get_bs.c        release_bs.c    read_bs.c       write_bs.c      \
-        control_reg.c   bsm.c           policy.c        \
+        control_reg.c   bsm.c           policy.c        page_table.c\
         frame.c         pfint.c         dump32.c        vcreate.c       \
         xm.c            vgetmem.c       vfreemem.c
 
@@ -383,6 +383,9 @@ frame.o: ../paging/frame.c /usr/include/stdc-predef.h ../h/conf.h \
  ../h/kernel.h ../h/systypes.h ../h/mem.h ../h/proc.h ../h/paging.h
 get_bs.o: ../paging/get_bs.c /usr/include/stdc-predef.h ../h/conf.h \
  ../h/kernel.h ../h/systypes.h ../h/mem.h ../h/proc.h ../h/paging.h
+page_table.o: ../paging/page_table.c /usr/include/stdc-predef.h \
+ ../h/conf.h ../h/proc.h ../h/kernel.h ../h/systypes.h ../h/mem.h \
+ ../h/paging.h
 pfint.o: ../paging/pfint.c /usr/include/stdc-predef.h ../h/conf.h \
  ../h/kernel.h ../h/systypes.h ../h/mem.h ../h/paging.h
 policy.o: ../paging/policy.c /usr/include/stdc-predef.h ../h/conf.h \

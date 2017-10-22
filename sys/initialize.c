@@ -63,6 +63,26 @@ int page_replace_policy = SC;
 /***								      ***/
 /************************************************************************/
 
+
+void init_paging_sys()
+{
+  //init the frame table to manage the phyiscal space
+  init_frm();
+  set_evec(14,pfint);
+  //init the first 4 page table, since nullproc and all thread need this in their page dir
+  init_general_page_table();
+  //init the page dir for nulluse, all thread need their own page dir
+  create_page_dir(NULLPROC);
+  //page dir and page table for physical address should be saved in cr3 registeri
+  //the pointer in proc entery is already a full size pointer
+  unsigned long pd=proctab[NULLPROC].pdbr;
+  write_cr3(pd);
+  //set the page fault handler
+  //set_evec(14,pfint);
+  //modify the cr0 to enable paging system
+  enable_paging();
+}
+
 /*------------------------------------------------------------------------
  *  nulluser  -- initialize system and become the null process (id==0)
  *------------------------------------------------------------------------
@@ -185,6 +205,7 @@ sysinit()
 	    init_dev(i);
 	}
 #endif
+        init_paging_sys();
 
 	pptr = &proctab[NULLPROC];	/* initialize null process entry */
 	pptr->pstate = PRCURR;
