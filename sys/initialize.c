@@ -68,7 +68,6 @@ void init_paging_sys()
 {
   //init the frame table to manage the phyiscal space
   init_frm();
-  set_evec(14,pfint);
   //init the first 4 page table, since nullproc and all thread need this in their page dir
   init_general_page_table();
   //init the page dir for nulluse, all thread need their own page dir
@@ -78,7 +77,7 @@ void init_paging_sys()
   unsigned long pd=proctab[NULLPROC].pdbr;
   write_cr3(pd);
   //set the page fault handler
-  //set_evec(14,pfint);
+  set_evec(14,pfint);
   //modify the cr0 to enable paging system
   enable_paging();
 }
