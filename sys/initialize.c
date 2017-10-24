@@ -24,6 +24,9 @@ extern	int	start();
 
 LOCAL		sysinit();
 
+//declare the page fault handler, so compiler can find it in .o
+SYSCALL pfintr();
+
 /* Declarations of major kernel variables */
 struct	pentry	proctab[NPROC]; /* process table			*/
 int	nextproc;		/* next process slot to use in create	*/
@@ -77,9 +80,12 @@ void init_paging_sys()
   unsigned long pd=proctab[NULLPROC].pdbr;
   write_cr3(pd);
   //set the page fault handler
-  set_evec(14,pfint);
+  set_evec(14,pfintr);
   //modify the cr0 to enable paging system
   enable_paging();
+  //test whether the page fault work
+  int *test=0xffffffff;
+  *test=1;
 }
 
 /*------------------------------------------------------------------------
