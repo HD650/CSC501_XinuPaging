@@ -98,14 +98,14 @@ int init_general_page_table()
   {
     for(ii=0;ii<NFRAMES;ii++)
     {
-      pt_t* page_entery=g_general_page_table[i]+ii*sizeof(pt_t);
+      pt_t* page_entery=g_general_page_table[i]+ii;
       //page in the general page table is present since the top 16MB is valid
       page_entery->pt_pres=1;
       //pt_base is the top 20 bit of the address
       //i is the PD index, ii is the PT index
-      page_entery->pt_base=i<<10+ii;
+      page_entery->pt_base=(i<<10)+ii;
       page_entery->pt_write=1;
-      g_frame_table[frame_num].fr_refcnt++;
+      g_frame_table[i].fr_refcnt++;
     }
   }
   return OK;
