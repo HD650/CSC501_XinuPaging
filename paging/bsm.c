@@ -5,12 +5,42 @@
 #include <paging.h>
 #include <proc.h>
 
+//record the 8 backing store info
+bs_map_t g_back_store_table[BS_NUM];
+//every process may have one backing store map
+bs_map_t g_proc_bs_t[NPROC];
+
 /*-------------------------------------------------------------------------
  * init_bsm- initialize bsm_tab
  *-------------------------------------------------------------------------
  */
 SYSCALL init_bsm()
 {
+  kprintf("Initialize backing store mapping table.\n");
+  int i;
+  //only init the table entery here, no real mem allocate
+  for(i=0;i<BS_NUM;i++)
+  {
+    g_back_store_table[i].bs_status=BSM_UNMAPPED;
+    g_back_store_table[i].bs_pid=-1;
+    //the vm of this backing store, it's in 16MB, so it's actully pm 
+    g_back_store_table[i].bs_vpno=(BACKING_STORE_BASE+i*BACKING_STORE_UNIT_SIZE)<<12;
+    //every backing store has 256 pages
+    g_back_store_table[i].bs_npages=BACKING_STORE_UNIT_SIZE/NBPG;
+    g_back_store_table[i].bs_sem=-1;
+  }
+  //for every process
+  for(i=0;i<NPROC;i++)
+  {
+    g_proc_bs_t[i].bs_status=BSM_UNMAPPED;
+    g_proc_bs_t[i].bs_pid=i;
+    //the vm mapped to this backing store 
+    g_proc_bs_t[i].bs_vpno=-1;
+    //don't know the size now
+    g_proc_bs_t[i].bs_npages=-1;
+    g_proc_bs_t[i].bs_sem=-1; 
+  }
+  return OK;
 }
 
 /*-------------------------------------------------------------------------
@@ -19,6 +49,20 @@ SYSCALL init_bsm()
  */
 SYSCALL get_bsm(int* avail)
 {
+  kprintf("Get a bsm.\n");
+  int i;
+  for(i=0;i<BS_NUM;i++)
+  {
+    if(g_back_store_table[i].bs_status==BSM_UNMAPPED)
+      {
+        //map this free back store
+        g_back_store_table[i].bs_status=BSM_MAPPED;
+        *avail=i;
+        return i;
+      }
+  }
+  kprintf("No free bsm, error...\n");
+  return SYSERR;
 }
 
 
@@ -28,6 +72,18 @@ SYSCALL get_bsm(int* avail)
  */
 SYSCALL free_bsm(int i)
 {
+  kprintf("Free a bsm.\n");
+  //free the process mapping first
+  int pid=g_back_store_table[i].bs_pid;
+  g_proc_bs_t[pid].bs_status=BSM_UNMAPPED;
+  g_proc_bs_t[pid].bs_vpno=-1;
+  g_proc_bs_t[pid].bs_npages=-1;
+  g_proc_bs_t[pid].bs_sem=-1;
+  //free the backing store entery
+  g_back_store_table[i].bs_status=BSM_UNMAPPED;
+  g_back_store_table[i].bs_pid=-1;
+  g_back_store_table[i].bs_sem=-1;
+  return OK;
 }
 
 /*-------------------------------------------------------------------------
