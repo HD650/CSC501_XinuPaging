@@ -83,9 +83,6 @@ void init_paging_sys()
   set_evec(14,pfintr);
   //modify the cr0 to enable paging system
   enable_paging();
-  //test whether the page fault work
-  int *test=0xffffffff;
-  *test=1;
 }
 
 /*------------------------------------------------------------------------
