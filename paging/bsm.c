@@ -102,7 +102,7 @@ SYSCALL bsm_lookup(int pid, long vaddr, int* store, int* pageth)
 SYSCALL bsm_map(int pid, int vpno, int source, int npages)
 {
   kprintf("Mapping a backing store to a process.\n");
-  if(g_back_store_table[source].bs_status==BSM__UNMAPPED)
+  if(g_back_store_table[source].bs_status==BSM_UNMAPPED)
   {
     kprintf("The backing store is not get yet!error...\n");
     return SYSERR;
