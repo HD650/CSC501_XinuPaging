@@ -102,7 +102,7 @@ SYSCALL bsm_lookup(int pid, long vaddr, int* store, int* pageth)
   unsigned int vpno=((unsigned long)vaddr)>>12;
   for(i=0;i<BS_NUM;i++)
   {
-    if(g_proc_bs_t[pid][i].bs_status==BS_UNMAPPED)
+    if(g_proc_bs_t[pid][i].bs_status==BSM_UNMAPPED)
       continue;
     min=g_proc_bs_t[pid][i].bs_vpno;
     max=g_proc_bs_t[pid][i].bs_vpno+g_proc_bs_t[pid][i].bs_npages;
@@ -130,8 +130,8 @@ SYSCALL bsm_map(int pid, int vpno, int source, int npages)
     kprintf("The backing store is already mapped, share mem now.\n");
   }
   g_back_store_table[source].bs_pid=pid;
-  g_back_store_table[source].bs_status=BS_MAPPED;
-  g_proc_bs_t[pid][source].bs_status=BS_MAPPED;
+  g_back_store_table[source].bs_status=BSM_MAPPED;
+  g_proc_bs_t[pid][source].bs_status=BSM_MAPPED;
   g_proc_bs_t[pid][source].bs_vpno=vpno;
   g_proc_bs_t[pid][source].bs_npages=npages;
   return OK;
