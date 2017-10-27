@@ -7,8 +7,8 @@
 
 //record the 8 backing store info
 bs_map_t g_back_store_table[BS_NUM];
-//every process may have one backing store map
-bs_map_t g_proc_bs_t[NPROC];
+//every process may have one or more backing store map
+bs_map_t g_proc_bs_t[NPROC][BS_NUM];
 
 /*-------------------------------------------------------------------------
  * init_bsm- initialize bsm_tab
@@ -32,13 +32,17 @@ SYSCALL init_bsm()
   //for every process
   for(i=0;i<NPROC;i++)
   {
-    g_proc_bs_t[i].bs_status=BSM_UNMAPPED;
-    g_proc_bs_t[i].bs_pid=i;
-    //the vm mapped to this backing store 
-    g_proc_bs_t[i].bs_vpno=-1;
-    //don't know the size now
-    g_proc_bs_t[i].bs_npages=-1;
-    g_proc_bs_t[i].bs_sem=-1; 
+    int ii;
+    for(ii=0;ii<BS_NUM;ii++)
+    {
+      g_proc_bs_t[i][ii].bs_status=BSM_UNMAPPED;
+      g_proc_bs_t[i][ii].bs_pid=i;
+      //the vm mapped to this backing store 
+      g_proc_bs_t[i][ii].bs_vpno=-1;
+      //don't know the size now
+      g_proc_bs_t[i][ii].bs_npages=-1;
+      g_proc_bs_t[i][ii].bs_sem=-1; 
+    }
   }
   return OK;
 }
@@ -55,8 +59,7 @@ SYSCALL get_bsm(int* avail)
   {
     if(g_back_store_table[i].bs_status==BSM_UNMAPPED)
       {
-        //map this free back store
-        g_back_store_table[i].bs_status=BSM_MAPPED;
+        //g_back_store_table[i].bs_status=BSM_MAPPED;
         *avail=i;
         return i;
       }
@@ -75,10 +78,10 @@ SYSCALL free_bsm(int i)
   kprintf("Free a bsm.\n");
   //free the process mapping first
   int pid=g_back_store_table[i].bs_pid;
-  g_proc_bs_t[pid].bs_status=BSM_UNMAPPED;
-  g_proc_bs_t[pid].bs_vpno=-1;
-  g_proc_bs_t[pid].bs_npages=-1;
-  g_proc_bs_t[pid].bs_sem=-1;
+  g_proc_bs_t[pid][i].bs_status=BSM_UNMAPPED;
+  g_proc_bs_t[pid][i].bs_vpno=-1;
+  g_proc_bs_t[pid][i].bs_npages=-1;
+  g_proc_bs_t[pid][i].bs_sem=-1;
   //free the backing store entery
   g_back_store_table[i].bs_status=BSM_UNMAPPED;
   g_back_store_table[i].bs_pid=-1;
@@ -92,6 +95,26 @@ SYSCALL free_bsm(int i)
  */
 SYSCALL bsm_lookup(int pid, long vaddr, int* store, int* pageth)
 {
+  kprintf("Find a backing store mapping.\n");
+  int i;
+  int min,max;
+  //get the top 20 bit number
+  unsigned int vpno=((unsigned long)vaddr)>>12;
+  for(i=0;i<BS_NUM;i++)
+  {
+    if(g_proc_bs_t[pid][i].bs_status==BS_UNMAPPED)
+      continue;
+    min=g_proc_bs_t[pid][i].bs_vpno;
+    max=g_proc_bs_t[pid][i].bs_vpno+g_proc_bs_t[pid][i].bs_npages;
+    //the address should in the range of the backing store
+    if((vpno>=min)&&(vpno<max))
+    {
+      *store=i;
+      *pageth=vpno-min;
+      return OK;
+    }
+  }
+  return SYSERR;
 }
 
 
@@ -102,13 +125,16 @@ SYSCALL bsm_lookup(int pid, long vaddr, int* store, int* pageth)
 SYSCALL bsm_map(int pid, int vpno, int source, int npages)
 {
   kprintf("Mapping a backing store to a process.\n");
-  if(g_back_store_table[source].bs_status==BSM_UNMAPPED)
+  if(g_back_store_table[source].bs_status==BSM_MAPPED)
   {
-    kprintf("The backing store is not get yet!error...\n");
-    return SYSERR;
+    kprintf("The backing store is already mapped, share mem now.\n");
   }
   g_back_store_table[source].bs_pid=pid;
-  //TODO alot
+  g_back_store_table[source].bs_status=BS_MAPPED;
+  g_proc_bs_t[pid][source].bs_status=BS_MAPPED;
+  g_proc_bs_t[pid][source].bs_vpno=vpno;
+  g_proc_bs_t[pid][source].bs_npages=npages;
+  return OK;
 }
 
 
@@ -119,6 +145,13 @@ SYSCALL bsm_map(int pid, int vpno, int source, int npages)
  */
 SYSCALL bsm_unmap(int pid, int vpno, int flag)
 {
+  int *bs_num,*page_num;
+  int res=bsm_lookup(pid,vpno<<12,bs_num,page_num);
+  if(res==SYSERR)
+  {
+    return SYSERR;
+  }
+  
 }
 
 
