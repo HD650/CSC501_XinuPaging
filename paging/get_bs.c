@@ -22,6 +22,8 @@ int get_bs(bsd_t bs_id, unsigned int npages)
   else
   {
     kprintf("Mapped to a new backing store/\n");
+    g_back_store_table[bs_id].bs_status=BSM_MAPPED;
+    g_back_store_table[bs_id].bs_pid=currpid;
     restore(ps);
     return g_back_store_table[bs_id].bs_npages;
   }
