@@ -24,7 +24,7 @@ SYSCALL init_bsm()
     g_back_store_table[i].bs_status=BSM_UNMAPPED;
     g_back_store_table[i].bs_pid=-1;
     //the vm of this backing store, it's in 16MB, so it's actully pm 
-    g_back_store_table[i].bs_vpno=(BACKING_STORE_BASE+i*BACKING_STORE_UNIT_SIZE)<<12;
+    g_back_store_table[i].bs_vpno=(BACKING_STORE_BASE+i*BACKING_STORE_UNIT_SIZE)>>12;
     //every backing store has 256 pages
     g_back_store_table[i].bs_npages=BACKING_STORE_UNIT_SIZE/NBPG;
     g_back_store_table[i].bs_sem=-1;

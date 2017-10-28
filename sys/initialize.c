@@ -71,6 +71,8 @@ void init_paging_sys()
 {
   //init the frame table to manage the phyiscal space
   init_frm();
+  //init the backing store data structure
+  init_bsm();
   //init the first 4 page table, since nullproc and all thread need this in their page dir
   init_general_page_table();
   //init the page dir for nulluse, all thread need their own page dir
