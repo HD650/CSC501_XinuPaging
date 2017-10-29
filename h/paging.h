@@ -104,6 +104,7 @@ int create_page_dir(int);
 #define SC 3
 #define AGING 4
 
+#define V_HEAP 4096
 #define BS_NUM 8
 #define BACKING_STORE_BASE	0x00800000
 #define BACKING_STORE_UNIT_SIZE 0x00100000
