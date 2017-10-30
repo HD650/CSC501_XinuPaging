@@ -16,8 +16,8 @@ int create_page_dir(int pro_id);
 
 int create_page_dir(int pro_id)
 {
-  int *frame_num;
-  int res=get_frm(frame_num);
+  int frame_num;
+  int res=get_frm(&frame_num);
   if(res!=OK)
   {
     return SYSERR;
@@ -25,7 +25,7 @@ int create_page_dir(int pro_id)
   int i;
   for(i=0;i<NFRAMES;i++)
   {
-    pd_t* page_dir_entery=(FRAME0+(*frame_num))*NBPG+sizeof(pd_t)*i;
+    pd_t* page_dir_entery=(FRAME0+(frame_num))*NBPG+sizeof(pd_t)*i;
     //only first 4 enteries are present in the beginning
     page_dir_entery->pd_pres=0; 
     page_dir_entery->pd_base=0;
@@ -41,7 +41,7 @@ int create_page_dir(int pro_id)
   }
   for(i=0;i<4;i++)
   {
-    pd_t* page_dir_entery=(FRAME0+(*frame_num))*NBPG+sizeof(pd_t)*i;
+    pd_t* page_dir_entery=(FRAME0+(frame_num))*NBPG+sizeof(pd_t)*i;
     //only first 4 enteries are present in the beginning
     page_dir_entery->pd_pres=1;
     page_dir_entery->pd_write=1;
@@ -49,23 +49,23 @@ int create_page_dir(int pro_id)
     page_dir_entery->pd_base=((int)g_general_page_table[i])>>12; 
   }
   //This frame is used
-  g_frame_table[*frame_num].fr_status=FRM_MAPPED;
+  g_frame_table[frame_num].fr_status=FRM_MAPPED;
   //Used as page dir
-  g_frame_table[*frame_num].fr_type=FR_DIR;
-  g_frame_table[*frame_num].fr_pid=pro_id;
-  g_frame_table[*frame_num].fr_dirty=0;
-  g_frame_table[*frame_num].fr_refcnt=0;
+  g_frame_table[frame_num].fr_type=FR_DIR;
+  g_frame_table[frame_num].fr_pid=pro_id;
+  g_frame_table[frame_num].fr_dirty=0;
+  g_frame_table[frame_num].fr_refcnt=0;
   //save page dir base address for each process
-  proctab[pro_id].pdbr=(FRAME0+(*frame_num))*NBPG;
+  proctab[pro_id].pdbr=(FRAME0+(frame_num))*NBPG;
   //return the frame number which contain the page table
-  return *frame_num;
+  return frame_num;
 }
 
 int create_page_table(int pro_id)
 {
-  int *frame_num;
+  int frame_num;
   //find one empty frame to save the new page table
-  int res=get_frm(frame_num);
+  int res=get_frm(&frame_num);
   if(res!=OK)
   {
     return SYSERR;
@@ -75,7 +75,7 @@ int create_page_table(int pro_id)
   int i;
   for(i=0;i<NFRAMES;i++)
   {
-    pt_t* page_entery=(FRAME0+(*frame_num))*NBPG+sizeof(pt_t)*i;
+    pt_t* page_entery=(FRAME0+(frame_num))*NBPG+sizeof(pt_t)*i;
     //when initialize, the page entery is not present, maybe this will 
     //cause the page fault
     page_entery->pt_pres=0;
@@ -91,14 +91,14 @@ int create_page_table(int pro_id)
     page_entery->pt_avail=0;
   }
   //This frame is used
-  g_frame_table[*frame_num].fr_status=FRM_MAPPED;
+  g_frame_table[frame_num].fr_status=FRM_MAPPED;
   //Used as page table
-  g_frame_table[*frame_num].fr_type=FR_TBL;
-  g_frame_table[*frame_num].fr_pid=pro_id;
-  g_frame_table[*frame_num].fr_dirty=0;
-  g_frame_table[*frame_num].fr_refcnt=0;
+  g_frame_table[frame_num].fr_type=FR_TBL;
+  g_frame_table[frame_num].fr_pid=pro_id;
+  g_frame_table[frame_num].fr_dirty=0;
+  g_frame_table[frame_num].fr_refcnt=0;
   //return the frame number which contain the page table
-  return *frame_num;
+  return frame_num;
 }
 
 int init_general_page_table()
