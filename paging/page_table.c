@@ -28,13 +28,23 @@ int create_page_dir(int pro_id)
     pd_t* page_dir_entery=(FRAME0+(*frame_num))*NBPG+sizeof(pd_t)*i;
     //only first 4 enteries are present in the beginning
     page_dir_entery->pd_pres=0; 
-    page_dir_entery->pd_base=0; 
+    page_dir_entery->pd_base=0;
+    page_dir_entery->pd_write=1;
+    page_dir_entery->pd_user=0;
+    page_dir_entery->pd_pwt=0;
+    page_dir_entery->pd_pcd=0;
+    page_dir_entery->pd_acc=0;
+    page_dir_entery->pd_fmb=0;
+    page_dir_entery->pd_mbz=0;
+    page_dir_entery->pd_global=0;
+    page_dir_entery->pd_avail=0; 
   }
   for(i=0;i<4;i++)
   {
     pd_t* page_dir_entery=(FRAME0+(*frame_num))*NBPG+sizeof(pd_t)*i;
     //only first 4 enteries are present in the beginning
     page_dir_entery->pd_pres=1;
+    page_dir_entery->pd_write=1;
     //pd_base only has a 20bit width, so we only save the top 20bit of the pointer
     page_dir_entery->pd_base=((int)g_general_page_table[i])>>12; 
   }
@@ -70,6 +80,15 @@ int create_page_table(int pro_id)
     //cause the page fault
     page_entery->pt_pres=0;
     page_entery->pt_base=0;
+    page_entery->pt_write=1;
+    page_entery->pt_user=0;
+    page_entery->pt_pwt=0;
+    page_entery->pt_pcd=0;
+    page_entery->pt_acc=0;
+    page_entery->pt_dirty=0;
+    page_entery->pt_mbz=0;
+    page_entery->pt_global=0;
+    page_entery->pt_avail=0;
   }
   //This frame is used
   g_frame_table[*frame_num].fr_status=FRM_MAPPED;
