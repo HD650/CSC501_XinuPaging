@@ -39,20 +39,20 @@ SYSCALL pfint()
   pte+=(addr>>12)&0x000003ff;
   //if a page falut occur, the pte->pres must be 0, we dont need to check
   pte->pt_pres=1;
-  int* frame_num;
-  int res=get_frm(frame_num);
+  int frame_num;
+  int res=get_frm(&frame_num);
   if(res==SYSERR)
   {
     return SYSERR;
   }
   //update the pte and the frame info
-  pte->pt_base=*frame_num+FRAME0;
-  g_frame_table[*frame_num].fr_status=FRM_MAPPED;
-  g_frame_table[*frame_num].fr_pid=currpid;
-  g_frame_table[*frame_num].fr_vpno=(addr<<12);
-  g_frame_table[*frame_num].fr_refcnt++;
-  g_frame_table[*frame_num].fr_type=FR_PAGE;
-  g_frame_table[*frame_num].fr_dirty=1;
+  pte->pt_base=frame_num+FRAME0;
+  g_frame_table[frame_num].fr_status=FRM_MAPPED;
+  g_frame_table[frame_num].fr_pid=currpid;
+  g_frame_table[frame_num].fr_vpno=(addr<<12);
+  g_frame_table[frame_num].fr_refcnt++;
+  g_frame_table[frame_num].fr_type=FR_PAGE;
+  g_frame_table[frame_num].fr_dirty=1;
   //update the pd base register
   write_cr3(proctab[currpid].pdbr); 
   return OK;

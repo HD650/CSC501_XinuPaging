@@ -143,19 +143,19 @@ SYSCALL bsm_map(int pid, int vpno, int source, int npages)
  */
 SYSCALL bsm_unmap(int pid, int vpno, int flag)
 {
-  int *bs_num,*page_num;
+  int bs_num,page_num;
   //find this mapping
-  int res=bsm_lookup(pid,vpno<<12,bs_num,page_num);
+  int res=bsm_lookup(pid,vpno<<12,&bs_num,&page_num);
   if(res==SYSERR)
   {
     return SYSERR;
   }
-  int length=g_proc_bs_t[pid][*bs_num].bs_npages;
+  int length=g_proc_bs_t[pid][bs_num].bs_npages;
   int i;
   kprintf("PID:%d bsm_unmap vpno:%x\n",currpid,vpno);
   //use the info of this mapping to save mem to backing store
   for(i=0;i<length;i++)
-    write_bs((vpno+i)<<12,*bs_num,(*page_num)+i);
+    write_bs((vpno+i)<<12,bs_num,(page_num)+i);
   return OK;
 }
 
