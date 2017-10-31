@@ -15,12 +15,11 @@ extern fr_map_t g_frame_table[NFRAMES];
  */
 SYSCALL pfint()
 {
-
-  kprintf("Handle the page fault!\n");
   STATWORD ps;
   disable(ps);
   //read the Page Fault Linear Address
   unsigned long addr=read_cr2();
+  kprintf("PID:%d page_fault vaddr:%x\n",currpid,addr);
   //find the pde and pte
   pd_t* pde=(pd_t*)proctab[currpid].pdbr;
   pde+=(addr>>22);

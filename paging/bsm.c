@@ -16,7 +16,7 @@ bs_map_t g_proc_bs_t[NPROC][BS_NUM];
  */
 SYSCALL init_bsm()
 {
-  kprintf("Initialize backing store mapping table.\n");
+  kprintf("PID:%d init_bsm\n");
   int i;
   //only init the table entery here, no real mem allocate
   for(i=0;i<BS_NUM;i++)
@@ -53,18 +53,17 @@ SYSCALL init_bsm()
  */
 SYSCALL get_bsm(int* avail)
 {
-  kprintf("Get a bsm.\n");
   int i;
   for(i=0;i<BS_NUM;i++)
   {
     if(g_back_store_table[i].bs_status==BSM_UNMAPPED)
       {
         //g_back_store_table[i].bs_status=BSM_MAPPED;
+        kprintf("PID:%d get_bsm avail:%d\n",currpid,i);
         *avail=i;
         return i;
       }
   }
-  kprintf("No free bsm, error...\n");
   return SYSERR;
 }
 
@@ -75,7 +74,7 @@ SYSCALL get_bsm(int* avail)
  */
 SYSCALL free_bsm(int i)
 {
-  kprintf("Free a bsm.\n");
+  kprintf("PID:%d free_bsm bsm_t:%d\n",currpid,i);
   //free the process mapping first
   int pid=g_back_store_table[i].bs_pid;
   g_proc_bs_t[pid][i].bs_status=BSM_UNMAPPED;
@@ -95,7 +94,6 @@ SYSCALL free_bsm(int i)
  */
 SYSCALL bsm_lookup(int pid, long vaddr, int* store, int* pageth)
 {
-  kprintf("Find a backing store mapping.\n");
   int i;
   int min,max;
   //get the top 20 bit number
@@ -109,6 +107,7 @@ SYSCALL bsm_lookup(int pid, long vaddr, int* store, int* pageth)
     //the address should in the range of the backing store
     if((vpno>=min)&&(vpno<max))
     {
+      kprintf("PID:%d bsm_lookup vaddr:%x store:%d pageth:%d\n",currpid,vaddr,vpno-min);
       *store=i;
       *pageth=vpno-min;
       return OK;
@@ -124,11 +123,10 @@ SYSCALL bsm_lookup(int pid, long vaddr, int* store, int* pageth)
  */
 SYSCALL bsm_map(int pid, int vpno, int source, int npages)
 {
-  kprintf("Mapping a backing store to a process.\n");
   if(g_back_store_table[source].bs_status==BSM_MAPPED)
   {
-    kprintf("The backing store is already mapped, share mem now.\n");
   }
+  kprintf("PID:%d bsm_map vpno:%x source:%d npages:%d\n",currpid,vpno,source,npages);
   g_back_store_table[source].bs_pid=pid;
   g_back_store_table[source].bs_status=BSM_MAPPED;
   g_proc_bs_t[pid][source].bs_status=BSM_MAPPED;
@@ -154,6 +152,7 @@ SYSCALL bsm_unmap(int pid, int vpno, int flag)
   }
   int length=g_proc_bs_t[pid][*bs_num].bs_npages;
   int i;
+  kprintf("PID:%d bsm_unmap vpno:%x\n",currpid,vpno);
   //use the info of this mapping to save mem to backing store
   for(i=0;i<length;i++)
     write_bs((vpno+i)<<12,*bs_num,(*page_num)+i);

@@ -13,7 +13,7 @@ fr_map_t g_frame_table[NFRAMES];
  */
 SYSCALL init_frm()
 {
-  kprintf("Initialize the frame table!\n");
+  kprintf("PID:%d init_frm\n");
   int i;
   for(i=0;i<NFRAMES;i++)
   {
@@ -33,17 +33,17 @@ SYSCALL init_frm()
  */
 SYSCALL get_frm(int* avail)
 {
-  kprintf("Get a frame!\n");
   int i;
   for(i=0;i<NFRAMES;i++)
   {
     if(g_frame_table[i].fr_status==FRM_UNMAPPED)
     {
+      kprintf("PID:%d get_frm avail:%d\n",currpid,i);
       *avail=i;
       return OK;
     }
   }
-  return OK;
+  return SYSERR;
 }
 
 /*-------------------------------------------------------------------------

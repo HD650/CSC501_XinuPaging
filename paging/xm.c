@@ -13,13 +13,12 @@ extern bs_map_t g_back_store_table[BS_NUM];
  */
 SYSCALL xmmap(int virtpage, bsd_t source, int npages)
 {
-  kprintf("xmmap - Mapping vm to bs.\n");
+  kprintf("PID:%d xmmap virtpage:%x source:%d npages:%d\n",currpid,virtpage,source,npages);
   STATWORD ps;
   disable(ps);
 
   if(g_back_store_table[source].bs_status==BSM_UNMAPPED)
   {
-    kprintf("Mapped a un mapped backstore,erro...\n");
     restore(ps);
     return SYSERR;
   }
@@ -44,7 +43,7 @@ SYSCALL xmmap(int virtpage, bsd_t source, int npages)
  */
 SYSCALL xmunmap(int virtpage)
 {
-  kprintf("Unmap a bs mapping.\n");
+  kprintf("PID:%d xmunmap virtpage:%x\n",currpid,virtpage);
   int res=bsm_unmap(currpid,virtpage,-1);
   if(res==SYSERR)
     return SYSERR;
