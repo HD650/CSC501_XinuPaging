@@ -28,7 +28,7 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
 	long	args;			/* arguments (treated like an	*/
 					/* array in the code)		*/
 {
-  kprintf("Create a new process with vm!\n");
+  kprintf("PID:%d vcreate\n",currpid);
   //a process with virtual heap should be a original process
   int proc_id=create(procaddr,ssize,priority,name,nargs,args);
   if(proc_id==SYSERR)
@@ -40,12 +40,12 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
 
   struct mblock *heap_begin=(struct mblock*)((V_HEAP)<<12);
   //when init, the heap is a whole chunk of free mem
-  heap_begin->mnext=NULL;
-  heap_begin->mlen=0;
+  //heap_begin->mnext=NULL;
+  //heap_begin->mlen=0;
   //the head of the linked list point to the fist free chunk of mem
   proctab[proc_id].vmemlist->mlen=NBPG*hsize;
   proctab[proc_id].vmemlist->mnext=heap_begin;
-  return OK;
+  return proc_id;
 }
 
 /*------------------------------------------------------------------------

@@ -21,10 +21,11 @@ WORD	*vgetmem(nbytes)
   struct mblock *a,*b,*new_addr;
   int remain;
   //read the current process mem list
-  a=proctab[currpid].vmemlist;
-  b=proctab[currpid].vmemlist->mnext;
+  //a=proctab[currpid].vmemlist;
+  a=proctab[currpid].vmemlist->mnext;
+  b=proctab[currpid].vmemlist;
   //go through all the free block and find one bigger than desire
-  for(;b!=NULL;a=b,b=b->mnext)
+  for(;a!=NULL;b=a,a=a->mnext)
   {
     if(b->mlen>=nbytes)
     {
@@ -32,18 +33,18 @@ WORD	*vgetmem(nbytes)
       //if the block still has some remainning, init the node here
       if(remain!=0)
       {
-        new_addr=(struct mblock*)((int*)b+nbytes);
-        a->mnext=new_addr;
-        new_addr->mnext=b->mnext;
+        new_addr=(struct mblock*)(((int*)a)+nbytes);
+        b->mnext=new_addr;
+        new_addr->mnext=a->mnext;
         new_addr->mlen=remain;
       }
       //else just remove the node
       else
       {
-        a->mnext=b->mnext;
+        b->mnext=a->mnext;
       }
       restore(ps);
-      return (WORD*)b;
+      return (WORD*)a;
     }
   }
   restore(ps);
