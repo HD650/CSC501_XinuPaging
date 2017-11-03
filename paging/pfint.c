@@ -52,6 +52,7 @@ SYSCALL pfint()
   g_frame_table[frame_num].fr_vpno=(addr<<12);
   g_frame_table[frame_num].fr_refcnt++;
   g_frame_table[frame_num].fr_type=FR_PAGE;
+  //this frame is dirty since it's not the same one in the bs
   g_frame_table[frame_num].fr_dirty=1;
   //update the pd base register
   write_cr3(proctab[currpid].pdbr); 

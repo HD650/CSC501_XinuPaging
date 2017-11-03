@@ -82,7 +82,8 @@ int	resched()
 #ifdef	DEBUG
 	PrintSaved(nptr);
 #endif
-	
+	//we should also switch the pdbr when context swtich
+	write_cr3(proctab[currpid].pdbr); 
 	ctxsw(&optr->pesp, optr->pirmask, &nptr->pesp, nptr->pirmask);
 
 #ifdef	DEBUG
