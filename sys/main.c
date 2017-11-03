@@ -140,14 +140,14 @@ void proc2_test3() {
   return;
 }
 void test3() {
-  int pids[16];
+  int pids[9];
   int mypid;
   int i,j;
 
   int ret = TPASSED;
   kprintf("\nTest 3: Private heap is exclusive\n");
 
-  for(i=0;i<=15;i++){
+  for(i=0;i<=8;i++){
     pids[i] = create(proc1_test3, 2000, 20, "proc1_test3", 2, i,&ret);
     if (pids[i] == SYSERR){
       ret = TFAILED;
@@ -160,7 +160,7 @@ void test3() {
   if (mypid != SYSERR)
     ret = TFAILED;
 
-  for(i=0;i<=15;i++){
+  for(i=0;i<=8;i++){
     kill(pids[i]);
   }
   if (ret != TPASSED)
