@@ -14,7 +14,7 @@ extern struct pentry proctab[];
 WORD	*vgetmem(nbytes)
 	unsigned nbytes;
 {
-  kprintf("Get mem from unallcated heap\n");
+  kprintf("PID:%d vgetmem nbytes:%d\n",currpid,nbytes);
   STATWORD ps;
   disable(ps);
   nbytes=(unsigned int)roundmb(nbytes);
