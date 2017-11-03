@@ -49,7 +49,7 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
   proctab[proc_id].vhpnpages=hsize;
 
   //all heap start with vpno of 4096, map them to the backing store
-  res=bsm_map(proc_id,4096,bsm_num,hsize);
+  res=bsm_map(proc_id,V_HEAP,bsm_num,hsize);
   if(res==SYSERR)
   {
     return SYSERR;
@@ -57,8 +57,8 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
   else
   {
     g_proc_bs_t[proc_id][bsm_num].bs_status=BSM_MAPPED;
-    g_proc_bs_t[proc_id][bsm_num].bs_vpno=4096;
-    proctab[proc_id].vhpno=4096;
+    g_proc_bs_t[proc_id][bsm_num].bs_vpno=V_HEAP;
+    proctab[proc_id].vhpno=V_HEAP;
     g_proc_bs_t[proc_id][bsm_num].bs_npages=hsize;
     proctab[proc_id].vhpnpages=hsize;
   }
