@@ -52,8 +52,35 @@ SYSCALL get_frm(int* avail)
  */
 SYSCALL free_frm(int i)
 {
-
-  kprintf("To be implemented!\n");
+  kprintf("PID:%d free_frm frm_num:%d\n",currpid,i);
+  //we only free frame that contain the page not page table
+  if(g_frame_table[i].fr_type!=FR_PAGE)
+  {
+    return SYSERR;
+  }
+  int bs_num,page_num;
+  fr_map_t frame=g_frame_table[i];
+  int res=bsm_lookup(frame.fr_pid,frame.fr_vpno*NBPG,&bs_num,&page_num);
+  //can't free a frame without backing store
+  if(res==SYSERR)
+  {
+    return SYSERR;
+  }
+  //save this frame to the backing store
+  write_bs((i+FRAME0)*NBPG,bs_num,page_num);
+  //to free a frame ,we also need to free the page table entery
+  pd_t* pde=(pd_t*)proctab[frame.fr_pid].pdbr;
+  pde+=(frame.fr_vpno>>10);
+  pt_t* pte=(pt_t*)(pde->pd_base<<12);
+  pte+=(frame.fr_vpno)&0x000003ff;
+  pte->pt_pres=0;
+  pte->pt_write=0;
+  pte->pt_dirty=0;
+  //free the frame structure
+  frame.fr_status=FRM_UNMAPPED;
+  frame.fr_pid=-1;
+  frame.fr_vpno=-1;
+  frame.fr_dirty=0;
   return OK;
 }
 
