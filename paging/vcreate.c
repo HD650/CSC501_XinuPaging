@@ -13,6 +13,9 @@
 static unsigned long esp;
 */
 
+extern bs_map_t g_back_store_table[BS_NUM];
+extern bs_map_t g_proc_bs_t[NPROC][BS_NUM];
+
 LOCAL	newpid();
 /*------------------------------------------------------------------------
  *  create  -  create a process to start running a procedure
@@ -33,15 +36,34 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
   int proc_id=create(procaddr,ssize,priority,name,nargs,args);
   if(proc_id==SYSERR)
     return SYSERR;
+  //every heap has a correctsponding backing store
+  int res,bsm_num;
+  res=get_bsm(&bsm_num);
+  if(res==SYSERR)
+  {
+    return SYSERR;
+  }
   //all heap of process begins with virtual page number 4096
   proctab[proc_id].vhpno=V_HEAP;
   //save the heap size
   proctab[proc_id].vhpnpages=hsize;
 
+  //all heap start with vpno of 4096, map them to the backing store
+  res=bsm_map(proc_id,4096,bsm_num,hsize);
+  if(res==SYSERR)
+  {
+    return SYSERR;
+  }
+  else
+  {
+    g_proc_bs_t[proc_id][bsm_num].bs_status=BSM_MAPPED;
+    g_proc_bs_t[proc_id][bsm_num].bs_vpno=4096;
+    proctab[proc_id].vhpno=4096;
+    g_proc_bs_t[proc_id][bsm_num].bs_npages=hsize;
+    proctab[proc_id].vhpnpages=hsize;
+  }
   struct mblock *heap_begin=(struct mblock*)((V_HEAP)<<12);
   //when init, the heap is a whole chunk of free mem
-  //heap_begin->mnext=NULL;
-  //heap_begin->mlen=0;
   //the head of the linked list point to the fist free chunk of mem
   proctab[proc_id].vmemlist->mlen=NBPG*hsize;
   proctab[proc_id].vmemlist->mnext=heap_begin;
