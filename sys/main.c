@@ -184,6 +184,35 @@ void test_proc()
         xmunmap(7000);
 }
 
+void proc1_testm()
+{
+  char* freemem=(char*)vgetmem(100);
+  *freemem='a';
+  sleep(3);
+  if(*freemem=='a')
+    kprintf("\tPASSED!\n");
+  else
+    kprintf("\tFAILED!\n");
+  return;
+}
+
+void proc2_testm()
+{
+  char* freemem=(char*)vgetmem(100);
+  *freemem='b';
+  return;
+}
+
+void testm()
+{
+  kprintf("Test m: Testing the virtual mem consistency\n");
+  int pid=vcreate(proc1_testm,2000,100,30,"proc1_testm",0,NULL);
+  resume(pid);
+  pid=vcreate(proc2_testm,2000,100,30,"proc2_testm",0,NULL);
+  resume(pid);
+  return;
+}
+
 /*------------------------------------------------------------------------
  *  main  --  user main program
  *------------------------------------------------------------------------
@@ -193,6 +222,8 @@ int main()
 	kprintf("\n\nHello World, Xinu@QEMU lives\n\n");
 	test1();
 	test2();
-	test3();
+	//test3();
+	testm();
+	sleep(10);
 	shutdown();
 }
