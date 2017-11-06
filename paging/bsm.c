@@ -27,6 +27,7 @@ SYSCALL init_bsm()
     g_back_store_table[i].bs_vpno=(BACKING_STORE_BASE+i*BACKING_STORE_UNIT_SIZE)>>12;
     //every backing store has 256 pages
     g_back_store_table[i].bs_npages=BACKING_STORE_UNIT_SIZE/NBPG;
+    g_back_store_table[i].bs_count=0;
     g_back_store_table[i].bs_sem=-1;
   }
   //for every process
@@ -88,6 +89,26 @@ SYSCALL free_bsm(int i)
   return OK;
 }
 
+//util function for free a process bs map
+SYSCALL free_proc_bsm(int pid, int bsm)
+{
+  kprintf("PID:%d free_proc_bsm pid:%d bsm:%d\n",currpid,pid,bsm);
+  //free the proc bs table first
+  g_proc_bs_t[pid][bsm].bs_status=BSM_UNMAPPED;
+  g_proc_bs_t[pid][bsm].bs_vpno=-1;
+  g_proc_bs_t[pid][bsm].bs_npages=-1;
+  g_proc_bs_t[pid][bsm].bs_sem=-1;
+  //update the reference count of the bs table
+  g_back_store_table[bsm].bs_count-=1;
+  if(g_back_store_table[bsm].bs_count==0)
+  {
+    g_back_store_table[bsm].bs_status=BSM_UNMAPPED;
+    g_back_store_table[bsm].bs_pid=-1;
+    g_back_store_table[bsm].bs_sem=-1; 
+  }
+  return OK;
+}
+
 /*-------------------------------------------------------------------------
  * bsm_lookup - lookup bsm_tab and find the corresponding entry
  *-------------------------------------------------------------------------
@@ -129,6 +150,7 @@ SYSCALL bsm_map(int pid, int vpno, int source, int npages)
   kprintf("PID:%d bsm_map vpno:%x source:%d npages:%d\n",currpid,vpno,source,npages);
   g_back_store_table[source].bs_pid=pid;
   g_back_store_table[source].bs_status=BSM_MAPPED;
+  g_back_store_table[source].bs_count+=1;
   g_proc_bs_t[pid][source].bs_status=BSM_MAPPED;
   g_proc_bs_t[pid][source].bs_vpno=vpno;
   g_proc_bs_t[pid][source].bs_npages=npages;
