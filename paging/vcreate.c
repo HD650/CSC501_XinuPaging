@@ -31,7 +31,7 @@ SYSCALL vcreate(procaddr,ssize,hsize,priority,name,nargs,args)
 	long	args;			/* arguments (treated like an	*/
 					/* array in the code)		*/
 {
-  kprintf("PID:%d vcreate\n",currpid);
+  kprintf("PID:%d vcreate procaddr:0x%x ssize:%d hsize:%d\n",currpid,procaddr,ssize,hsize);
   //a process with virtual heap should be a original process
   int proc_id=create(procaddr,ssize,priority,name,nargs,args);
   if(proc_id==SYSERR)

@@ -90,21 +90,26 @@ SYSCALL free_bsm(int i)
 }
 
 //util function for free a process bs map
-SYSCALL free_proc_bsm(int pid, int bsm)
+SYSCALL free_proc_bsm(int pid)
 {
-  kprintf("PID:%d free_proc_bsm pid:%d bsm:%d\n",currpid,pid,bsm);
-  //free the proc bs table first
-  g_proc_bs_t[pid][bsm].bs_status=BSM_UNMAPPED;
-  g_proc_bs_t[pid][bsm].bs_vpno=-1;
-  g_proc_bs_t[pid][bsm].bs_npages=-1;
-  g_proc_bs_t[pid][bsm].bs_sem=-1;
-  //update the reference count of the bs table
-  g_back_store_table[bsm].bs_count-=1;
-  if(g_back_store_table[bsm].bs_count==0)
+  kprintf("PID:%d free_proc_bsm pid:%d\n",currpid,pid);
+  int i;
+  for(i=0;i<BS_NUM;i++)
   {
-    g_back_store_table[bsm].bs_status=BSM_UNMAPPED;
-    g_back_store_table[bsm].bs_pid=-1;
-    g_back_store_table[bsm].bs_sem=-1; 
+    //update the reference count of the bs table
+    if(g_proc_bs_t[pid][i].bs_status==BSM_MAPPED)
+      g_back_store_table[i].bs_count-=1;
+    //free the proc bs table first
+    g_proc_bs_t[pid][i].bs_status=BSM_UNMAPPED;
+    g_proc_bs_t[pid][i].bs_vpno=-1;
+    g_proc_bs_t[pid][i].bs_npages=-1;
+    g_proc_bs_t[pid][i].bs_sem=-1;
+    if(g_back_store_table[i].bs_count==0)
+    {
+      g_back_store_table[i].bs_status=BSM_UNMAPPED;
+      g_back_store_table[i].bs_pid=-1;
+      g_back_store_table[i].bs_sem=-1;
+    }
   }
   return OK;
 }

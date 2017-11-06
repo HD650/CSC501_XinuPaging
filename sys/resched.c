@@ -4,8 +4,11 @@
 #include <kernel.h>
 #include <proc.h>
 #include <q.h>
+#include <paging.h>
 
 unsigned long currSP;	/* REAL sp of current process */
+
+extern fr_map_t g_frame_table[NFRAMES];
 
 /*------------------------------------------------------------------------
  * resched  --  reschedule processor to highest priority ready process
@@ -82,6 +85,27 @@ int	resched()
 #ifdef	DEBUG
 	PrintSaved(nptr);
 #endif
+	int oldpid=optr-proctab;
+	if(optr->pstate==PRFREE)
+	{
+	  int i;
+	  for(i=0;i<NFRAMES;i++)
+	  {
+	    //free all the frame belong to old process, this will free the mem content
+	    //and all the page table as wel
+	    if(g_frame_table[i].fr_pid==oldpid)
+	    {
+	      g_frame_table[i].fr_status=FRM_UNMAPPED;
+	      g_frame_table[i].fr_pid=-1;
+	      g_frame_table[i].fr_vpno=-1;
+	      g_frame_table[i].fr_refcnt=0;
+	      g_frame_table[i].fr_type=FR_UNDEFINE;
+	      g_frame_table[i].fr_dirty=0;
+	    }
+	  }
+	  //ferr all the bs map of the old process
+	  free_proc_bsm(oldpid);
+	}
 	//we should also switch the pdbr when context swtich
 	write_cr3(proctab[currpid].pdbr); 
 	ctxsw(&optr->pesp, optr->pirmask, &nptr->pesp, nptr->pirmask);
