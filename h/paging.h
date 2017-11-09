@@ -60,6 +60,17 @@ typedef struct{
   int fr_dirty;
 }fr_map_t;
 
+struct fr_queue_node
+{
+  int frame_num;
+  int ref;
+  struct fr_queue_node* next;
+};
+
+struct fr_queue_node* fr_queue_head;
+struct fr_queue_node* fr_queue_now;
+struct fr_queue_node* fr_queue_end;
+
 extern bs_map_t bsm_tab[];
 extern fr_map_t frm_tab[];
 

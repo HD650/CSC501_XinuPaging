@@ -34,6 +34,7 @@ SYSCALL init_frm()
 SYSCALL get_frm(int* avail)
 {
   int i;
+  //find a free frame to return
   for(i=0;i<NFRAMES;i++)
   {
     if(g_frame_table[i].fr_status==FRM_UNMAPPED)
@@ -43,6 +44,9 @@ SYSCALL get_frm(int* avail)
       return OK;
     }
   }
+  
+  //else, swap a frame to return
+
   return SYSERR;
 }
 

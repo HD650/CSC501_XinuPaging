@@ -7,7 +7,10 @@
 
 extern int currpid;
 extern fr_map_t g_frame_table[NFRAMES];
-
+extern int page_replace_policy;
+extern struct fr_queue_node* fr_queue_head;
+extern struct fr_queue_node* fr_queue_now;
+extern struct fr_queue_node* fr_queue_end;
 
 /*-------------------------------------------------------------------------
  * pfint - paging fault ISR
@@ -54,6 +57,32 @@ SYSCALL pfint()
   g_frame_table[frame_num].fr_type=FR_PAGE;
   //this frame is dirty since it's not the same one in the bs
   g_frame_table[frame_num].fr_dirty=1;
+  
+  //if the replace policy is SC, insert the frame to the cirular queue
+  if(page_replace_policy==SC)
+  {
+    //the first page fault, init the head already existed
+    if(fr_queue_head->frame_num==-1)
+    {
+      fr_queue_head->frame_num=frame_num;
+      fr_queue_head->ref=1;
+      fr_queue_head->next=fr_queue_head;
+      fr_queue_now=fr_queue_head;
+      fr_queue_end=fr_queue_head;
+    }
+    else
+    {
+      struct fr_queue_node* new_node=(struct fr_queue_node*)getmem(sizeof(struct fr_queue_node));
+      new_node->frame_num=frame_num;
+      new_node->ref=1;
+      //make the queue a circular queue
+      new_node->next=fr_queue_head;
+      fr_queue_end->next=new_node;
+      fr_queue_end=new_node;
+    }
+    
+  }
+
   //update the pd base register
   write_cr3(proctab[currpid].pdbr); 
   return OK;

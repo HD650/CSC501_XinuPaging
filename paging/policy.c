@@ -4,8 +4,11 @@
 #include <kernel.h>
 #include <paging.h>
 
-
+//inited in initialize.c
 extern int page_replace_policy;
+
+
+
 /*-------------------------------------------------------------------------
  * srpolicy - set page replace policy 
  *-------------------------------------------------------------------------

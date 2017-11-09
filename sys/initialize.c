@@ -51,6 +51,9 @@ int	console_dev;		/* the console device			*/
 
 /*  added for the demand paging */
 int page_replace_policy = SC;
+extern struct fr_queue_node* fr_queue_head;
+extern struct fr_queue_node* fr_queue_now;
+
 
 /************************************************************************/
 /***				NOTE:				      ***/
@@ -71,6 +74,15 @@ void init_paging_sys()
 {
   //init the frame table to manage the phyiscal space
   init_frm();
+  //if the replace policy is Second Chance, init the data structure we need
+  if(page_replace_policy==SC)
+  {
+    fr_queue_head=(struct fr_queue_node*)getmem(sizeof(struct fr_queue_node));
+    fr_queue_head->frame_num=-1;
+    fr_queue_head->ref=0;
+    fr_queue_head->next=fr_queue_head;
+    fr_queue_now=fr_queue_head;
+  }
   //init the backing store data structure
   init_bsm();
   //init the first 4 page table, since nullproc and all thread need this in their page dir
@@ -157,8 +169,6 @@ sysinit()
 	struct	sentry	*sptr;
 	struct	mblock	*mptr;
 	SYSCALL pfintr();
-
-	
 
 	numproc = 0;			/* initialize system variables */
 	nextproc = NPROC-1;
