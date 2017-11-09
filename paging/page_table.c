@@ -30,13 +30,6 @@ int create_page_dir(int pro_id)
     page_dir_entery->pd_pres=0; 
     page_dir_entery->pd_base=0;
     page_dir_entery->pd_write=1;
-    page_dir_entery->pd_user=0;
-    page_dir_entery->pd_pwt=0;
-    page_dir_entery->pd_pcd=0;
-    page_dir_entery->pd_acc=0;
-    page_dir_entery->pd_fmb=0;
-    page_dir_entery->pd_mbz=0;
-    page_dir_entery->pd_global=0;
     page_dir_entery->pd_avail=0; 
   }
   for(i=0;i<4;i++)
