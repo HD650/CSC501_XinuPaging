@@ -6,7 +6,8 @@
 
 //the global table of frames for all the phiscial memory frame we have
 fr_map_t g_frame_table[NFRAMES];
-
+extern int page_replace_policy;
+extern struct fr_queue_node* fr_queue_now;
 /*-------------------------------------------------------------------------
  * init_frm - initialize frm_tab
  *-------------------------------------------------------------------------
@@ -46,7 +47,29 @@ SYSCALL get_frm(int* avail)
   }
   
   //else, swap a frame to return
-
+  if(page_replace_policy==SC)
+  {
+    if(fr_queue_now==NULL)
+      return SYSERR;
+    struct fr_queue_node* temp;
+    while(1)
+    {
+      if(fr_queue_now->ref==0)
+      {
+        *avail=fr_queue_now->frame_num;
+        temp->next=fr_queue_now->next;
+        free_frm(fr_queue_now->frame_num);
+        freemem(fr_queue_now,sizeof(struct fr_queue_node));
+        fr_queue_now=temp->next;
+        kprintf("PID:%d replace[SC]\n frame_num:%d",currpid,*avail);
+        return OK;
+      }
+      else
+        fr_queue_now->ref=0;
+      temp=fr_queue_now;
+      fr_queue_now=fr_queue_now->next;
+    }
+  }
   return SYSERR;
 }
 
