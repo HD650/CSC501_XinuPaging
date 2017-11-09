@@ -91,8 +91,7 @@ int	resched()
 	  int i;
 	  for(i=0;i<NFRAMES;i++)
 	  {
-	    //free all the frame belong to old process, this will free the mem content
-	    //and all the page table as wel
+	    //free all the frame belong to the free process, this will free the mem content and all the page table as well
 	    if(g_frame_table[i].fr_pid==oldpid)
 	    {
 	      g_frame_table[i].fr_status=FRM_UNMAPPED;
@@ -106,6 +105,29 @@ int	resched()
 	  //ferr all the bs map of the old process
 	  free_proc_bsm(oldpid);
 	}
+	
+	//if frame of the old process is dirty now, save it to the bs
+	int res=-1;
+	int bs_num,page_num;
+	for(i=0;i<NFRAMES;i++)
+	{
+	  if((g_frame_table[i].fr_pid==oldpid)&&(g_frame_table[i].fr_status==FRM_MAPPED))
+	  {
+	    res=bsm_lookup(oldpid,(g_frame_table[i].fr_vpno>>12),&bs_num,&page_num);
+	    if(res!=SYSERR)
+	      write_bs((FRAME0+i)>>12,bs_num,page_num);
+	  }
+	  
+	  //read all content of new process from the bs to the frame
+	  if(g_frame_table[i].fr_pid==currpid)
+	  {
+	    res=bsm_lookup(currpid,(g_frame_table[i].fr_vpno>>12),&bs_num,&page_num);
+	    if(res!=SYSERR)
+	      read_bs((FRAME0+i)>>12,bs_num,page_num);
+	  }
+	}	
+	
+	//all frame swtich is done now
 	//we should also switch the pdbr when context swtich
 	write_cr3(proctab[currpid].pdbr); 
 	ctxsw(&optr->pesp, optr->pirmask, &nptr->pesp, nptr->pirmask);
