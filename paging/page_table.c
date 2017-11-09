@@ -74,13 +74,8 @@ int create_page_table(int pro_id)
     page_entery->pt_pres=0;
     page_entery->pt_base=0;
     page_entery->pt_write=1;
-    page_entery->pt_user=0;
-    page_entery->pt_pwt=0;
-    page_entery->pt_pcd=0;
     page_entery->pt_acc=0;
     page_entery->pt_dirty=0;
-    page_entery->pt_mbz=0;
-    page_entery->pt_global=0;
     page_entery->pt_avail=0;
   }
   //This frame is used
