@@ -65,8 +65,8 @@ SYSCALL pfint()
     if(fr_queue_head->frame_num==-1)
     {
       fr_queue_head->frame_num=frame_num;
-      fr_queue_head->ref=1;
       fr_queue_head->next=fr_queue_head;
+      fr_queue_head->age=255;
       fr_queue_now=fr_queue_head;
       fr_queue_end=fr_queue_head;
     }
@@ -74,13 +74,33 @@ SYSCALL pfint()
     {
       struct fr_queue_node* new_node=(struct fr_queue_node*)getmem(sizeof(struct fr_queue_node));
       new_node->frame_num=frame_num;
-      new_node->ref=1;
       //make the queue a circular queue
       new_node->next=fr_queue_head;
+      new_node->age=255;
       fr_queue_end->next=new_node;
       fr_queue_end=new_node;
     }
-    
+  }
+  else if(page_replace_policy==AGING)
+  {
+    //the first time of page fault
+    if(fr_queue_head->frame_num==-1)
+    {
+      fr_queue_head->frame_num=frame_num;
+      fr_queue_head->next=NULL;
+      fr_queue_head->age=255;
+      fr_queue_now=fr_queue_head;
+      fr_queue_end=fr_queue_head;
+    }
+    else
+    {
+      struct fr_queue_node* new_node=(struct fr_queue_node*)getmem(sizeof(struct fr_queue_node));
+      new_node->frame_num=frame_num;
+      new_node->next=NULL;
+      new_node->age=255;
+      fr_queue_end->next=new_node;
+      fr_queue_end=new_node;
+    }
   }
 
   //update the pd base register
