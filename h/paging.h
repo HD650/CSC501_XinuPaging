@@ -63,7 +63,7 @@ typedef struct{
 struct fr_queue_node
 {
   int frame_num;
-  int ref;
+  int age;
   struct fr_queue_node* next;
 };
 
