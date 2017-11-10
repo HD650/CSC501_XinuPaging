@@ -54,7 +54,7 @@ SYSCALL pfint()
   pte->pt_base=frame_num+FRAME0;
   g_frame_table[frame_num].fr_status=FRM_MAPPED;
   g_frame_table[frame_num].fr_pid=currpid;
-  g_frame_table[frame_num].fr_vpno=(addr<<12);
+  g_frame_table[frame_num].fr_vpno=(addr>>12);
   g_frame_table[frame_num].fr_refcnt++;
   g_frame_table[frame_num].fr_type=FR_PAGE;
   //this frame is dirty since it's not the same one in the bs

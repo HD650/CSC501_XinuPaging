@@ -1,5 +1,5 @@
 /* paging.h */
-
+#define PG_DEBUG
 typedef unsigned int	 bsd_t;
 
 /* Structure for a page directory entry */
@@ -63,8 +63,8 @@ typedef struct{
 struct fr_queue_node
 {
   int frame_num;
-  //max age is 255
-  char age;
+  //max age is 255, but we can't use char
+  unsigned int age;
   struct fr_queue_node* next;
 };
 
