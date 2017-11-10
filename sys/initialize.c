@@ -87,6 +87,7 @@ void init_paging_sys()
   {
     fr_queue_head=(struct fr_queue_node*)getmem(sizeof(struct fr_queue_node));
     fr_queue_head->frame_num=-1;
+    fr_queue_head->age=255;
     fr_queue_head->next=NULL;
     fr_queue_now=fr_queue_head;
   }

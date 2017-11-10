@@ -56,8 +56,10 @@ SYSCALL get_frm(int* avail)
     int vpno;
     pd_t* pde;
     pt_t* pte;
+    //find the correct frame and swap it
     while(1)
     {
+      //find the page entery to this frame
       frame_num=fr_queue_now->frame_num;
       vpno=g_frame_table[frame_num].fr_vpno;
       pde=(pd_t*)proctab[currpid].pdbr;
@@ -85,6 +87,54 @@ SYSCALL get_frm(int* avail)
       //move to the next frame in the queue
       temp=fr_queue_now;
       fr_queue_now=fr_queue_now->next;
+    }
+  }
+  else if(page_replace_policy==AGING)
+  {
+    int min_age=255;
+    struct fr_queue_node* p=fr_queue_head;
+    struct fr_queue_node* q=NULL;
+    int frame_num;
+    int vpno;
+    pd_t* pde;
+    pt_t* pte;
+    for(;p!=NULL;p=p->next)
+    {
+      //find the page entery to this frame
+      vpno=g_frame_table[p->frame_num].fr_vpno;
+      pde=(pd_t*)proctab[currpid].pdbr;
+      pde+=(vpno>>10);
+      if(pde->pd_pres==0)
+        return SYSERR;
+      pte=(pt_t*)(pde->pd_base<<12);
+      pte+=(vpno)&0x000003ff;
+      if(pte->pt_pres==0)
+        return SYSERR;
+      //half the age of every node
+      p->age=p->age>>1;
+      //if the acc bit is set, add 128 to the age
+      if(pte->pt_acc==1)
+        p->age+=128;
+      //save the min age in this iteration
+      if(p->age<min_age)
+        min_age=p->age;
+    }
+    p=fr_queue_head->next;
+    q=fr_queue_head;
+    //find the min age frame and swap it
+    while(p!=NULL)
+    {
+      //found the first min node
+      if(p->age==min_age) 
+      {
+        *avail=p->frame_num;
+        q->next=p->next;
+        free_frm(p->frame_num);
+        freemem(p,sizeof(struct fr_queue_node));
+        return OK;
+      }
+      q=p;
+      p=p->next;
     }
   }
   return SYSERR;

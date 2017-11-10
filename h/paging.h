@@ -63,7 +63,8 @@ typedef struct{
 struct fr_queue_node
 {
   int frame_num;
-  int age;
+  //max age is 255
+  char age;
   struct fr_queue_node* next;
 };
 
