@@ -177,12 +177,20 @@ SYSCALL bsm_unmap(int pid, int vpno, int flag)
   {
     return SYSERR;
   }
+  
+  //save the data to the backing store
   int length=g_proc_bs_t[pid][bs_num].bs_npages;
   int i;
   kprintf("PID:%d bsm_unmap vpno:%x\n",currpid,vpno);
   //use the info of this mapping to save mem to backing store
   for(i=0;i<length;i++)
     write_bs((vpno+i)<<12,bs_num,(page_num)+i);
+  
+  //unmap this in the data structure
+  g_proc_bs_t[pid][bs_num].bs_status=BSM_UNMAPPED;
+  g_proc_bs_t[pid][bs_num].bs_pid=-1;
+  g_proc_bs_t[pid][bs_num].bs_vpno=-1;
+  g_proc_bs_t[pid][bs_num].bs_npages=0;
   return OK;
 }
 
