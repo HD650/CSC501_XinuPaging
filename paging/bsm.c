@@ -16,7 +16,9 @@ bs_map_t g_proc_bs_t[NPROC][BS_NUM];
  */
 SYSCALL init_bsm()
 {
+#ifdef PG_DEBUG
   kprintf("PID:%d init_bsm\n");
+#endif
   int i;
   //only init the table entery here, no real mem allocate
   for(i=0;i<BS_NUM;i++)
@@ -59,8 +61,9 @@ SYSCALL get_bsm(int* avail)
   {
     if(g_back_store_table[i].bs_status==BSM_UNMAPPED)
       {
-        //g_back_store_table[i].bs_status=BSM_MAPPED;
+#ifdef PG_DEBUG
         kprintf("PID:%d get_bsm avail:%d\n",currpid,i);
+#endif
         *avail=i;
         return i;
       }
@@ -75,7 +78,9 @@ SYSCALL get_bsm(int* avail)
  */
 SYSCALL free_bsm(int i)
 {
+#ifdef PG_DEBUG
   kprintf("PID:%d free_bsm bsm_t:%d\n",currpid,i);
+#endif
   //free the process mapping first
   int pid=g_back_store_table[i].bs_pid;
   g_proc_bs_t[pid][i].bs_status=BSM_UNMAPPED;
@@ -92,7 +97,9 @@ SYSCALL free_bsm(int i)
 //util function for free a process bs map
 SYSCALL free_proc_bsm(int pid)
 {
+#ifdef PG_DEBUG
   kprintf("PID:%d free_proc_bsm pid:%d\n",currpid,pid);
+#endif
   int i;
   for(i=0;i<BS_NUM;i++)
   {
@@ -133,7 +140,9 @@ SYSCALL bsm_lookup(int pid, long vaddr, int* store, int* pageth)
     //the address should in the range of the backing store
     if((vpno>=min)&&(vpno<max))
     {
+#ifdef PG_DEBUG
       kprintf("PID:%d bsm_lookup vaddr:%x store:%d pageth:%d\n",currpid,vaddr,vpno-min);
+#endif
       *store=i;
       *pageth=vpno-min;
       return OK;
@@ -152,7 +161,9 @@ SYSCALL bsm_map(int pid, int vpno, int source, int npages)
   if(g_back_store_table[source].bs_status==BSM_MAPPED)
   {
   }
-  kprintf("PID:%d bsm_map vpno:%x source:%d npages:%d\n",currpid,vpno,source,npages);
+#ifdef PG_DEBUG  
+kprintf("PID:%d bsm_map vpno:%x source:%d npages:%d\n",currpid,vpno,source,npages);
+#endif
   g_back_store_table[source].bs_pid=pid;
   g_back_store_table[source].bs_status=BSM_MAPPED;
   g_back_store_table[source].bs_count+=1;
@@ -181,7 +192,9 @@ SYSCALL bsm_unmap(int pid, int vpno, int flag)
   //save the data to the backing store
   int length=g_proc_bs_t[pid][bs_num].bs_npages;
   int i;
+#ifdef PG_DEBUG
   kprintf("PID:%d bsm_unmap vpno:%x\n",currpid,vpno);
+#endif  
   //use the info of this mapping to save mem to backing store
   for(i=0;i<length;i++)
     write_bs((vpno+i)<<12,bs_num,(page_num)+i);

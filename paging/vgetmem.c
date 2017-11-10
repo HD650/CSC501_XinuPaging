@@ -14,7 +14,9 @@ extern struct pentry proctab[];
 WORD	*vgetmem(nbytes)
 	unsigned nbytes;
 {
+#ifdef PG_DEBUG
   kprintf("PID:%d vgetmem nbytes:%d\n",currpid,nbytes);
+#endif
   STATWORD ps;
   disable(ps);
   nbytes=(unsigned int)roundmb(nbytes);

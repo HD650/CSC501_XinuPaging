@@ -14,7 +14,9 @@ extern struct fr_queue_node* fr_queue_now;
  */
 SYSCALL init_frm()
 {
+#ifdef PG_DEBUG
   kprintf("PID:%d init_frm\n");
+#endif
   int i;
   for(i=0;i<NFRAMES;i++)
   {
@@ -40,7 +42,9 @@ SYSCALL get_frm(int* avail)
   {
     if(g_frame_table[i].fr_status==FRM_UNMAPPED)
     {
+#ifdef PG_DEBUG      
       kprintf("PID:%d get_frm avail:%d\n",currpid,i);
+#endif
       *avail=i;
       return OK;
     }
@@ -78,7 +82,9 @@ SYSCALL get_frm(int* avail)
         free_frm(fr_queue_now->frame_num);
         freemem(fr_queue_now,sizeof(struct fr_queue_node));
         fr_queue_now=temp->next;
+#ifdef PG_DEBUG        
         kprintf("PID:%d replace[SC]\n frame_num:%d",currpid,*avail);
+#endif
         return OK;
       }
       //else set that acc bit to 0
@@ -146,7 +152,9 @@ SYSCALL get_frm(int* avail)
  */
 SYSCALL free_frm(int i)
 {
+#ifdef PG_DEBUG
   kprintf("PID:%d free_frm frm_num:%d\n",currpid,i);
+#endif
   //we only free frame that contain the page not page table
   if(g_frame_table[i].fr_type!=FR_PAGE)
   {

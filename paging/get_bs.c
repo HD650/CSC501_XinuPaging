@@ -14,14 +14,18 @@ int get_bs(bsd_t bs_id, unsigned int npages)
 
   if(g_back_store_table[bs_id].bs_status==BSM_MAPPED)
   {
+#ifdef PG_BUG
     kprintf("PID:%d get_bs BSM_MAPPED  bsid:%d\n",currpid,bs_id);
+#endif
     restore(ps);
     //return g_back_store_table[bs_id].bs_npages;
     return npages; 
   }
   else
   {
+#ifdef PG_BUG
     kprintf("PID:%d get_bs BSM_UNMAPPED bs_id%d\n",currpid,bs_id);
+#endif
     g_back_store_table[bs_id].bs_status=BSM_MAPPED;
     g_back_store_table[bs_id].bs_pid=currpid;
     restore(ps);

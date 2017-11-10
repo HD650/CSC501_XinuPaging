@@ -13,7 +13,9 @@ extern bs_map_t g_back_store_table[BS_NUM];
  */
 SYSCALL xmmap(int virtpage, bsd_t source, int npages)
 {
+#ifdef PG_DEBUG
   kprintf("PID:%d xmmap virtpage:%x source:%d npages:%d\n",currpid,virtpage,source,npages);
+#endif
   STATWORD ps;
   disable(ps);
 
@@ -43,7 +45,9 @@ SYSCALL xmmap(int virtpage, bsd_t source, int npages)
  */
 SYSCALL xmunmap(int virtpage)
 {
+#ifdef PG_DEBUG
   kprintf("PID:%d xmunmap virtpage:%x\n",currpid,virtpage);
+#endif
   int res=bsm_unmap(currpid,virtpage,-1);
   if(res==SYSERR)
     return SYSERR;

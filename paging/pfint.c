@@ -22,7 +22,9 @@ SYSCALL pfint()
   disable(ps);
   //read the Page Fault Linear Address
   unsigned long addr=read_cr2();
+#ifdef PG_DEBUG  
   kprintf("PID:%d page_fault vaddr:%x\n",currpid,addr);
+#endif
   //find the pde and pte
   pd_t* pde=(pd_t*)proctab[currpid].pdbr;
   pde+=(addr>>22);

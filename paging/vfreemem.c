@@ -14,7 +14,9 @@ SYSCALL	vfreemem(block, size)
 	struct	mblock	*block;
 	unsigned size;
 {
+#ifdef PG_DEBUG
   kprintf("PID:%d vfreemem block:%x size:%d\n",currpid,block,size);
+#endif
   STATWORD ps;
   disable(ps);
   int nbytes=(unsigned int)roundmb(nbytes);
