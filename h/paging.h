@@ -65,6 +65,7 @@ struct fr_queue_node
   int frame_num;
   //max age is 255, but we can't use char
   unsigned int age;
+  int pid;
   struct fr_queue_node* next;
 };
 

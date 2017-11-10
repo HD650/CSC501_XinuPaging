@@ -9,6 +9,9 @@
 unsigned long currSP;	/* REAL sp of current process */
 
 extern fr_map_t g_frame_table[NFRAMES];
+extern struct fr_queue_node* fr_queue_head;
+extern struct fr_queue_node* fr_queue_end;
+extern struct fr_queue_node* fr_queue_now;
 
 /*------------------------------------------------------------------------
  * resched  --  reschedule processor to highest priority ready process
@@ -104,6 +107,26 @@ int	resched()
 	  }
 	  //ferr all the bs map of the old process
 	  free_proc_bsm(oldpid);
+          //all the frame saved in the replace queue should be remove too
+          struct fr_queue_node* p=fr_queue_head;
+          //special case for AG and SC  policy
+          if((fr_queue_head->next==NULL)||(fr_queue_head->next==fr_queue_head))
+          {
+            //don't free the node but invaild it
+            if(fr_queue_head->pid==oldpid)
+            {
+              fr_queue_head->pid=-1;
+              fr_queue_head->age=255;
+              fr_queue_head->frame_num=-1;
+            }
+          }
+          else
+          {
+            struct fr_queue_node* q=NULL;
+            for(;q!=fr_queue_end;)
+            {
+            }
+          }
 	}
 	
 	//if frame of the old process is dirty now, save it to the bs

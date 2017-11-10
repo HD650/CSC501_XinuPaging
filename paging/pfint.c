@@ -69,6 +69,7 @@ SYSCALL pfint()
       fr_queue_head->frame_num=frame_num;
       fr_queue_head->next=fr_queue_head;
       fr_queue_head->age=255;
+      fr_queue_head->pid=currpid;
       fr_queue_now=fr_queue_head;
       fr_queue_end=fr_queue_head;
     }
@@ -79,6 +80,7 @@ SYSCALL pfint()
       //make the queue a circular queue
       new_node->next=fr_queue_head;
       new_node->age=255;
+      new_node->pid=currpid;
       fr_queue_end->next=new_node;
       fr_queue_end=new_node;
     }
@@ -91,6 +93,7 @@ SYSCALL pfint()
       fr_queue_head->frame_num=frame_num;
       fr_queue_head->next=NULL;
       fr_queue_head->age=255;
+      fr_queue_head->pid=currpid;
       fr_queue_now=fr_queue_head;
       fr_queue_end=fr_queue_head;
     }
@@ -100,6 +103,7 @@ SYSCALL pfint()
       new_node->frame_num=frame_num;
       new_node->next=NULL;
       new_node->age=255;
+      new_node->pid=currpid;
       fr_queue_end->next=new_node;
       fr_queue_end=new_node;
     }
