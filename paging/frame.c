@@ -52,9 +52,24 @@ SYSCALL get_frm(int* avail)
     if(fr_queue_now==NULL)
       return SYSERR;
     struct fr_queue_node* temp;
+    int frame_num;
+    int vpno;
+    pd_t* pde;
+    pt_t* pte;
     while(1)
     {
-      if(fr_queue_now->ref==0)
+      frame_num=fr_queue_now->frame_num;
+      vpno=g_frame_table[frame_num].fr_vpno;
+      pde=(pd_t*)proctab[currpid].pdbr;
+      pde+=(vpno>>10);
+      if(pde->pd_pres==0)
+        return SYSERR;
+      pte=(pt_t*)(pde->pd_base<<12);
+      pte+=(vpno)&0x000003ff;
+      if(pte->pt_pres==0)
+        return SYSERR;
+      //if the acc bit of the correctsponding page is 0, swap this frame
+      if((pte->pt_acc)==0)
       {
         *avail=fr_queue_now->frame_num;
         temp->next=fr_queue_now->next;
@@ -64,8 +79,10 @@ SYSCALL get_frm(int* avail)
         kprintf("PID:%d replace[SC]\n frame_num:%d",currpid,*avail);
         return OK;
       }
+      //else set that acc bit to 0
       else
-        fr_queue_now->ref=0;
+        pte->pt_acc=0;
+      //move to the next frame in the queue
       temp=fr_queue_now;
       fr_queue_now=fr_queue_now->next;
     }
