@@ -109,24 +109,34 @@ int	resched()
 	  free_proc_bsm(oldpid);
           //all the frame saved in the replace queue should be remove too
           struct fr_queue_node* p=fr_queue_head;
-          //special case for AG and SC  policy
-          if((fr_queue_head->next==NULL)||(fr_queue_head->next==fr_queue_head))
+          //the guardian of this list
+          struct fr_queue_node* q=(struct fr_queue_node*)getmem(sizeof(struct fr_queue_node));
+          struct fr_queue_node* temp=q;
+          q->next=p;
+          for(;p!=fr_queue_end;)
           {
-            //don't free the node but invaild it
-            if(fr_queue_head->pid==oldpid)
+            if(p->pid==oldpid)
             {
-              fr_queue_head->pid=-1;
-              fr_queue_head->age=255;
-              fr_queue_head->frame_num=-1;
+              q->next=p->next;
+              freemem(p,sizeof(struct fr_queue_node));
+              p=p->next;
+            }
+            else
+            {
+              q=p;
+              p=p->next;
             }
           }
-          else
+          //if there is only one node left in the queue, do not free it
+          //just invalid it
+          if(p->pid==oldpid)
           {
-            struct fr_queue_node* q=NULL;
-            for(;q!=fr_queue_end;)
-            {
-            }
+            p->pid=-1;
+            p->frame_num=-1;
+            p->age=255;
           }
+          fr_queue_head=temp->next;
+          freemem(temp,sizeof(struct fr_queue_node));
 	}
 	
 	//if frame of the old process is dirty now, save it to the bs

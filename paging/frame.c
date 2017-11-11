@@ -83,7 +83,7 @@ SYSCALL get_frm(int* avail)
         freemem(fr_queue_now,sizeof(struct fr_queue_node));
         fr_queue_now=temp->next;
 #ifdef PG_DEBUG        
-        kprintf("PID:%d replace[SC]\n frame_num:%d",currpid,*avail);
+        kprintf("PID:%d replace[SC] frame_num:%d\n",currpid,*avail);
 #endif
         return OK;
       }
@@ -137,6 +137,9 @@ SYSCALL get_frm(int* avail)
         q->next=p->next;
         free_frm(p->frame_num);
         freemem(p,sizeof(struct fr_queue_node));
+#ifdef PG_DEBUG        
+        kprintf("PID:%d replace[AG] frame_num:%d\n",currpid,*avail);
+#endif
         return OK;
       }
       q=p;
