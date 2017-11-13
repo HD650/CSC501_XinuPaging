@@ -8,9 +8,9 @@ Demand paging is a method of mapping a large address space into a relatively sma
 * Map virtual address to backing store
 * Page replacing when physical memory full
 
-
 ##TODO
 * can't operate backing store in concurrent environment
 * can't issue error when invalid parameters are passed
 * can't share memory when two processes mapped to one backing store 
 * can't switch page replacing algorithm inside the running program
+* the aging page replacing algorithm is not tested yet
