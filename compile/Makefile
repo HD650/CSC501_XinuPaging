@@ -4,10 +4,10 @@
 
 INCLUDE = -I../h
 #add debug flag
-CFLAGS  = -m32 -march=i586 -fno-builtin -c -Wall -g ${DEFS} ${INCLUDE}
+CFLAGS  = -m32 -march=i586 -fno-builtin -c -Wall -O ${DEFS} ${INCLUDE}
 SDEFS	= -I../h
 #add debug flag
-ASFLAGS = --32 -g
+ASFLAGS = --32
 
 CC      =       /usr/bin/gcc
 cPP     =       /usr/bin/gcc -E
