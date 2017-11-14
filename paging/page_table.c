@@ -103,7 +103,7 @@ int init_general_page_table()
   int ii;
   for(i=0;i<4;i++)
   {
-    for(ii=0;ii<NFRAMES;ii++)
+    for(ii=0;ii<(NBPG/4);ii++)
     {
       pt_t* page_entery=g_general_page_table[i]+ii;
       //page in the general page table is present since the top 16MB is valid
