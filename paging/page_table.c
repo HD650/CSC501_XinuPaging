@@ -23,7 +23,7 @@ int create_page_dir(int pro_id)
     return SYSERR;
   }
   int i;
-  for(i=0;i<NFRAMES;i++)
+  for(i=0;i<(NBPG/4);i++)
   {
     pd_t* page_dir_entery=(FRAME0+(frame_num))*NBPG+sizeof(pd_t)*i;
     //only first 4 enteries are present in the beginning
@@ -66,7 +66,7 @@ int create_page_table(int pro_id)
   //initialize all the page enteries, But the page in this table is not persent
   //yet, the page will be persent when a page fault occur
   int i;
-  for(i=0;i<NFRAMES;i++)
+  for(i=0;i<(NBPG/4);i++)
   {
     pt_t* page_entery=(FRAME0+(frame_num))*NBPG+sizeof(pt_t)*i;
     //when initialize, the page entery is not present, maybe this will 
