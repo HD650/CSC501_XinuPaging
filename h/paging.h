@@ -1,5 +1,4 @@
 /* paging.h */
-#define PG_DEBUG
 typedef unsigned int	 bsd_t;
 
 /* Structure for a page directory entry */
