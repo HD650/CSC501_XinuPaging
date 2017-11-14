@@ -69,21 +69,6 @@ void proc1_test3(char *msg, int lck) {
 	return;
 }
 
-void my_test()
-{
-  int* base_addr=(4096<<12);
-  int i=0;
-  while(i<(1024*2))
-  {
-    kprintf("insert new data:%d\n",i);
-    base_addr+=1024;
-    *base_addr='a';
-    i++;
-  }
-  kprintf("done.\n");
-  return;
-}
-
 int main() {
 	int pid1;
 	int pid2;
@@ -101,11 +86,6 @@ int main() {
 
 	kprintf("\n3: Frame test\n");
 	pid1 = create(proc1_test3, 2000, 20, "proc1_test3", 0, NULL);
-	//resume(pid1);
-	sleep(3);
-        
-	kprintf("\n3: Swap test\n");
-	pid1=vcreate(my_test,2000,100,20,"my_test",0,NULL);
 	resume(pid1);
-	sleep(999);
+	sleep(3);
 }
