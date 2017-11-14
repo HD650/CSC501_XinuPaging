@@ -8,6 +8,7 @@
 fr_map_t g_frame_table[NFRAMES];
 extern int page_replace_policy;
 extern struct fr_queue_node* fr_queue_now;
+extern int g_replace_debug;
 /*-------------------------------------------------------------------------
  * init_frm - initialize frm_tab
  *-------------------------------------------------------------------------
@@ -82,9 +83,8 @@ SYSCALL get_frm(int* avail)
         free_frm(fr_queue_now->frame_num);
         freemem(fr_queue_now,sizeof(struct fr_queue_node));
         fr_queue_now=temp->next;
-#ifdef PG_DEBUG        
-        kprintf("PID:%d replace[SC] frame_num:%d\n",currpid,*avail);
-#endif
+        if(g_replace_debug)
+          kprintf("PID:%d replace[SC] frame_num:%d\n",currpid,*avail);
         return OK;
       }
       //else set that acc bit to 0
@@ -137,9 +137,8 @@ SYSCALL get_frm(int* avail)
         q->next=p->next;
         free_frm(p->frame_num);
         freemem(p,sizeof(struct fr_queue_node));
-#ifdef PG_DEBUG        
-        kprintf("PID:%d replace[AG] frame_num:%d\n",currpid,*avail);
-#endif
+        if(g_replace_debug)
+          kprintf("PID:%d replace[AG] frame_num:%d\n",currpid,*avail);
         return OK;
       }
       q=p;

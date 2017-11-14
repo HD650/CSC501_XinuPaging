@@ -51,6 +51,7 @@ int	console_dev;		/* the console device			*/
 
 /*  added for the demand paging */
 int page_replace_policy = SC;
+int g_replace_debug=0;
 extern struct fr_queue_node* fr_queue_head;
 extern struct fr_queue_node* fr_queue_now;
 
