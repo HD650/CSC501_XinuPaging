@@ -25,6 +25,14 @@ SYSCALL pfint()
 #ifdef PG_DEBUG  
   kprintf("PID:%d page_fault vaddr:%x\n",currpid,addr);
 #endif
+  //if a page is already swaped to the bs, we should read it back
+  int bs_num,page_num;
+  int res=bsm_lookup(currpid,addr,&bs_num,&page_num);
+  //every heap page should has a bs mapping, or it can't be swap and restore
+  if(res==SYSERR)
+  {
+    return SYSERR;
+  }
   //find the pde and pte
   pd_t* pde=(pd_t*)proctab[currpid].pdbr;
   pde+=(addr>>22);
@@ -45,13 +53,17 @@ SYSCALL pfint()
   //if a page falut occur, the pte->pres must be 0, we dont need to check
   pte->pt_pres=1;
   int frame_num;
-  int res=get_frm(&frame_num);
+  res=get_frm(&frame_num);
   if(res==SYSERR)
   {
     return SYSERR;
   }
-  //update the pte and the frame info
+  //read the conten from the bs, this only take effect when this page is
+  //original existed but been swapped out
+  read_bs((FRAME0+frame_num)*NBPG,bs_num,page_num);
+  //update the pte and the frame info since they are now vaild
   pte->pt_base=frame_num+FRAME0;
+  pte->pt_pres=1;
   g_frame_table[frame_num].fr_status=FRM_MAPPED;
   g_frame_table[frame_num].fr_pid=currpid;
   g_frame_table[frame_num].fr_vpno=(addr>>12);
